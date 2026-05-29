@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatCents, imageUrl, segmentLabel } from "@/lib/format";
 import { AddToCartForm } from "@/components/add-to-cart-form";
+import { ProductPlaceholder } from "@/components/product-placeholder";
 
 type Params = Promise<{ slug: string }>;
 
@@ -74,31 +75,44 @@ export default async function ProductDetailPage({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <div className="space-y-3">
-          <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted">
-            {images[0] ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={imageUrl(images[0].storage_path)}
-                alt={images[0].alt_text}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                Imagen próximamente
+          {(() => {
+            const primaryUrl = images[0]
+              ? imageUrl(images[0].storage_path)
+              : null;
+            return (
+              <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-muted">
+                {primaryUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={primaryUrl}
+                    alt={images[0].alt_text}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <ProductPlaceholder
+                    slug={product.slug}
+                    name={product.name}
+                    big
+                  />
+                )}
               </div>
-            )}
-          </div>
+            );
+          })()}
           {images.length > 1 && (
             <div className="grid grid-cols-4 gap-3">
-              {images.slice(1).map((img, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={i}
-                  src={imageUrl(img.storage_path)}
-                  alt={img.alt_text}
-                  className="aspect-square w-full rounded-lg object-cover"
-                />
-              ))}
+              {images.slice(1).map((img, i) => {
+                const u = imageUrl(img.storage_path);
+                if (!u) return null;
+                return (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={i}
+                    src={u}
+                    alt={img.alt_text}
+                    className="aspect-square w-full rounded-lg object-cover"
+                  />
+                );
+              })}
             </div>
           )}
         </div>
