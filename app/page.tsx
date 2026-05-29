@@ -5,7 +5,7 @@ import { ProductCard } from "@/components/product-card";
 import { Marquee } from "@/components/marquee";
 import { imageUrl } from "@/lib/format";
 
-const HERO_BG_PATH = "hero/hero-1.jpg";
+const HERO_BG_PATH = "hero/lifestyle.jpg";
 
 export default async function Home() {
   const supabase = await createClient();
