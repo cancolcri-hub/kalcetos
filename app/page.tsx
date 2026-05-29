@@ -2,9 +2,10 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { ProductCard } from "@/components/product-card";
-import { ProductPlaceholder } from "@/components/product-placeholder";
 import { Marquee } from "@/components/marquee";
 import { imageUrl } from "@/lib/format";
+
+const HERO_BG_PATH = "hero/hero-1.jpg";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -17,92 +18,60 @@ export default async function Home() {
     .order("name");
 
   const productList = products ?? [];
-
-  // 4 modelos para el mosaico del hero.
-  const mosaicSlugs = ["guindilla", "arcoiris", "patos", "donuts"];
-  const heroMosaic = mosaicSlugs.map((slug) => {
-    const p = productList.find((x) => x.slug === slug);
-    const primary =
-      p?.product_images?.find((i) => i.is_primary) ??
-      p?.product_images?.[0] ??
-      null;
-    return {
-      slug,
-      name: p?.name ?? slug,
-      photoUrl: primary ? imageUrl(primary.storage_path) : null,
-    };
-  });
+  const heroBg = imageUrl(HERO_BG_PATH);
 
   return (
     <>
-      {/* HERO */}
-      <section className="border-b">
-        <div className="mx-auto max-w-6xl px-4 py-12 sm:py-20 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <div className="flex flex-col items-start gap-6 max-w-xl">
-            <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1.5 text-xs font-display font-extrabold uppercase tracking-widest">
+      {/* HERO editorial con foto a fondo completo */}
+      <section
+        className="relative isolate overflow-hidden"
+        style={{
+          backgroundImage: heroBg ? `url(${heroBg})` : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {/* Sobrecapa para legibilidad — sutil */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20"
+        />
+        <div className="relative mx-auto max-w-6xl px-4 py-24 sm:py-32 lg:py-40">
+          <div className="max-w-2xl flex flex-col items-start gap-6">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/95 text-primary px-4 py-1.5 text-xs font-display font-extrabold uppercase tracking-widest shadow-sm">
               <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-              9,99 € · porque tus pies se lo merecen
+              Ofertas de verano · 9,99 €
             </span>
-            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter leading-[0.95]">
+            <h1 className="font-display text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] text-white drop-shadow-[0_2px_24px_rgba(0,0,0,0.35)]">
               Calcetines{" "}
-              <span className="relative inline-block">
-                <span className="relative z-10">divertidos</span>
-                <span
-                  aria-hidden
-                  className="absolute inset-x-0 bottom-1 h-3 sm:h-4 bg-primary/30 -z-0 rounded-sm"
-                />
+              <span className="bg-primary text-primary-foreground px-3 py-0 inline-block rotate-[-2deg] rounded-md">
+                divertidos
               </span>{" "}
-              que no se pierden en el cajón.
+              para días de sol.
             </h1>
-            <p className="text-lg text-muted-foreground">
-              Seis modelos. Cero aburridos. Algodón que aguanta, colores que
-              duran y diseños con personalidad para todos los pies — adultos y
-              peques.
+            <p className="text-lg sm:text-xl text-white max-w-xl drop-shadow-md">
+              Seis modelos. Cero aburridos. Color que aguanta lavados, algodón
+              que respira y diseños con personalidad — para todos los pies.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 pt-2">
               <Link
                 href="/productos"
-                className={buttonVariants({ size: "lg" })}
+                className={buttonVariants({ size: "lg" }) + " shadow-lg"}
               >
                 Que empiece la fiesta →
               </Link>
               <Link
                 href="/productos?segment=nino"
-                className={buttonVariants({ size: "lg", variant: "outline" })}
+                className="inline-flex items-center justify-center rounded-lg bg-white/95 text-foreground hover:bg-white px-4 h-9 text-sm font-medium shadow-lg"
               >
                 Para los peques 🦆
               </Link>
             </div>
           </div>
-
-          {/* Mosaico — foto si la hay, si no bloque de color */}
-          <div className="grid grid-cols-2 gap-3 lg:gap-4">
-            {heroMosaic.map((m, i) => (
-              <Link
-                key={m.slug}
-                href={`/productos/${m.slug}`}
-                className={`relative aspect-square overflow-hidden rounded-2xl bg-muted group ${i % 2 === 0 ? "translate-y-3 sm:translate-y-6" : "-translate-y-3 sm:-translate-y-6"} transition-transform hover:scale-[1.02]`}
-              >
-                {m.photoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={m.photoUrl}
-                    alt={`Calcetines Kalcetos ${m.name}`}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <ProductPlaceholder slug={m.slug} name={m.name} />
-                )}
-                <span className="absolute bottom-3 left-3 rounded-full bg-background/95 px-3 py-1 text-xs font-display font-extrabold uppercase tracking-wider">
-                  {m.name}
-                </span>
-              </Link>
-            ))}
-          </div>
         </div>
       </section>
 
-      {/* MARQUEE */}
+      {/* MARQUEE en rojo guindilla */}
       <Marquee
         items={[
           "Envío 24-48 h",
@@ -118,7 +87,7 @@ export default async function Home() {
       <section className="mx-auto max-w-6xl px-4 py-16">
         <div className="flex items-end justify-between mb-10 gap-4 flex-wrap">
           <div>
-            <h2 className="font-display text-4xl sm:text-5xl font-black tracking-tighter">
+            <h2 className="font-display text-4xl sm:text-5xl font-black tracking-tighter text-primary">
               La colección
             </h2>
             <p className="text-muted-foreground mt-2 text-lg">
@@ -156,7 +125,7 @@ export default async function Home() {
       </section>
 
       {/* VALORES */}
-      <section className="border-t bg-muted/30">
+      <section className="border-t bg-amber-50/40">
         <div className="mx-auto max-w-6xl px-4 py-14 grid grid-cols-1 sm:grid-cols-3 gap-8">
           {[
             {
@@ -179,7 +148,7 @@ export default async function Home() {
               <span className="text-3xl" aria-hidden>
                 {v.emoji}
               </span>
-              <h3 className="font-display font-extrabold text-xl mt-2 tracking-tight">
+              <h3 className="font-display font-extrabold text-xl mt-2 tracking-tight text-primary">
                 {v.title}
               </h3>
               <p className="text-muted-foreground mt-1">{v.body}</p>

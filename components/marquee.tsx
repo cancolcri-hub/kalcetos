@@ -10,7 +10,7 @@ type Props = {
 export function Marquee({ items, className = "" }: Props) {
   return (
     <div
-      className={`relative overflow-hidden border-y border-foreground bg-foreground text-background py-3 ${className}`}
+      className={`relative overflow-hidden bg-primary text-primary-foreground py-3 ${className}`}
     >
       <div className="flex gap-12 animate-marquee whitespace-nowrap will-change-transform">
         {[...items, ...items, ...items].map((item, i) => (
@@ -19,7 +19,7 @@ export function Marquee({ items, className = "" }: Props) {
             className="text-sm font-display font-bold uppercase tracking-wider flex items-center gap-12"
           >
             {item}
-            <span aria-hidden className="text-primary">
+            <span aria-hidden className="text-amber-200">
               ★
             </span>
           </span>
