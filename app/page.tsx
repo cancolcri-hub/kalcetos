@@ -20,12 +20,18 @@ export default async function Home() {
 
   // 4 modelos para el mosaico del hero.
   const mosaicSlugs = ["guindilla", "arcoiris", "patos", "donuts"];
-  const heroMosaic = mosaicSlugs.map((slug) => ({
-    slug,
-    name:
-      productList.find((p) => p.slug === slug)?.name ??
-      slug.replace("-", " "),
-  }));
+  const heroMosaic = mosaicSlugs.map((slug) => {
+    const p = productList.find((x) => x.slug === slug);
+    const primary =
+      p?.product_images?.find((i) => i.is_primary) ??
+      p?.product_images?.[0] ??
+      null;
+    return {
+      slug,
+      name: p?.name ?? slug,
+      photoUrl: primary ? imageUrl(primary.storage_path) : null,
+    };
+  });
 
   return (
     <>
@@ -69,15 +75,27 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* Mosaico de bloques de color */}
+          {/* Mosaico — foto si la hay, si no bloque de color */}
           <div className="grid grid-cols-2 gap-3 lg:gap-4">
             {heroMosaic.map((m, i) => (
               <Link
                 key={m.slug}
                 href={`/productos/${m.slug}`}
-                className={`relative aspect-square overflow-hidden rounded-2xl group ${i % 2 === 0 ? "translate-y-3 sm:translate-y-6" : "-translate-y-3 sm:-translate-y-6"} transition-transform hover:scale-[1.02]`}
+                className={`relative aspect-square overflow-hidden rounded-2xl bg-muted group ${i % 2 === 0 ? "translate-y-3 sm:translate-y-6" : "-translate-y-3 sm:-translate-y-6"} transition-transform hover:scale-[1.02]`}
               >
-                <ProductPlaceholder slug={m.slug} name={m.name} />
+                {m.photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={m.photoUrl}
+                    alt={`Calcetines Kalcetos ${m.name}`}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <ProductPlaceholder slug={m.slug} name={m.name} />
+                )}
+                <span className="absolute bottom-3 left-3 rounded-full bg-background/95 px-3 py-1 text-xs font-display font-extrabold uppercase tracking-wider">
+                  {m.name}
+                </span>
               </Link>
             ))}
           </div>
