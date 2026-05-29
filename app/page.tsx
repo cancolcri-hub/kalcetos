@@ -1,65 +1,151 @@
-import Image from "next/image";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/server";
+import { ProductCard } from "@/components/product-card";
+import { imageUrl } from "@/lib/format";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: products } = await supabase
+    .from("products")
+    .select(
+      "id, slug, name, segment, base_price_cents, compare_at_price_cents, product_images(storage_path, alt_text, is_primary)",
+    )
+    .eq("status", "active")
+    .order("name");
+
+  const productList = products ?? [];
+
+  // 4 fotos para el mosaico del hero (uno por modelo).
+  const mosaicSlugs = ["guindilla", "arcoiris", "patos", "donuts"];
+  const mosaicImages = mosaicSlugs.map((slug) => ({
+    slug,
+    src: `/products/${slug}/01-frontal.webp`,
+  }));
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      {/* HERO */}
+      <section className="border-b">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="flex flex-col items-start gap-6 max-w-xl">
+            <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold uppercase tracking-wider">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+              Oferta lanzamiento · 9,99&nbsp;€
+            </span>
+            <h1 className="text-5xl font-bold tracking-tight sm:text-6xl leading-[1.05]">
+              Calcetines{" "}
+              <span className="text-primary">con carácter</span>{" "}
+              para los pies que importan.
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Seis modelos, dos segmentos y un patrón claro: algodón de calidad,
+              colores que aguantan lavados y diseños que no pasan desapercibidos.
+              Envío rápido a toda España.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/productos" className={buttonVariants({ size: "lg" })}>
+                Ver catálogo
+              </Link>
+              <Link
+                href="/productos?segment=nino"
+                className={buttonVariants({ size: "lg", variant: "outline" })}
+              >
+                Para los peques
+              </Link>
+            </div>
+            <div className="flex items-center gap-6 pt-4 text-sm text-muted-foreground">
+              <span>✓ Algodón 80%</span>
+              <span>✓ Envío en 24-48 h</span>
+              <span>✓ Devolución 14 días</span>
+            </div>
+          </div>
+
+          {/* Mosaico de fotos */}
+          <div className="grid grid-cols-2 gap-3 lg:gap-4">
+            {mosaicImages.map((m, i) => (
+              <Link
+                key={m.slug}
+                href={`/productos/${m.slug}`}
+                className={`relative aspect-square overflow-hidden rounded-2xl bg-muted group ${i % 2 === 0 ? "translate-y-4" : "-translate-y-4"}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={m.src}
+                  alt={`Calcetines Kalcetos modelo ${m.slug}`}
+                  className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                />
+                <span className="absolute bottom-3 left-3 rounded-full bg-background/95 px-3 py-1 text-xs font-semibold capitalize">
+                  {m.slug.replace("-", " ")}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </section>
+
+      {/* MODELOS */}
+      <section className="mx-auto max-w-6xl px-4 py-16">
+        <div className="flex items-end justify-between mb-8 gap-4 flex-wrap">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">Nuestros modelos</h2>
+            <p className="text-muted-foreground mt-1">
+              {productList.length} diseños listos para tu cajón.
+            </p>
+          </div>
+          <Link
+            href="/productos"
+            className="text-sm font-medium text-primary hover:underline"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Ver todo el catálogo →
+          </Link>
         </div>
-      </main>
-    </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {productList.map((p) => {
+            const primary =
+              p.product_images?.find((i) => i.is_primary) ??
+              p.product_images?.[0] ??
+              null;
+            return (
+              <ProductCard
+                key={p.id}
+                slug={p.slug}
+                name={p.name}
+                segment={p.segment}
+                basePriceCents={p.base_price_cents}
+                compareAtPriceCents={p.compare_at_price_cents}
+                imageUrl={primary ? imageUrl(primary.storage_path) : null}
+                imageAlt={primary?.alt_text ?? p.name}
+              />
+            );
+          })}
+        </div>
+      </section>
+
+      {/* VALORES */}
+      <section className="border-t bg-muted/30">
+        <div className="mx-auto max-w-6xl px-4 py-12 grid grid-cols-1 sm:grid-cols-3 gap-8 text-sm">
+          <div>
+            <h3 className="font-semibold mb-1">Envío en 24-48 h</h3>
+            <p className="text-muted-foreground">
+              Pedido antes de las 14 h, sale el mismo día desde Sevilla.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-1">Devolución 14 días</h3>
+            <p className="text-muted-foreground">
+              Si no son lo tuyo, los recogemos sin preguntas raras.
+            </p>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-1">Pago seguro</h3>
+            <p className="text-muted-foreground">
+              Stripe gestiona tu tarjeta. Nosotros nunca la vemos.
+            </p>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
