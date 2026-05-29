@@ -20,13 +20,15 @@ export function segmentLabel(segment: string): string {
  *   que el cliente caiga al ProductPlaceholder.
  * - Si no → key del bucket Supabase Storage; siempre devolvemos URL completa.
  */
+const STORAGE_BUCKET = "kalcetos-product-images";
+
 export function imageUrl(storagePath: string): string | null {
   if (storagePath.startsWith("/")) {
     if (process.env.NODE_ENV === "production") return null;
     return storagePath;
   }
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  return `${supabaseUrl}/storage/v1/object/public/${storagePath}`;
+  return `${supabaseUrl}/storage/v1/object/public/${STORAGE_BUCKET}/${storagePath}`;
 }
 
 /**
