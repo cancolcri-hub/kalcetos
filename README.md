@@ -4,6 +4,8 @@ Tienda eCommerce de calcetines con carácter. Storefront completo construido con
 
 🔗 **Demo en producción:** [kalcetos.shop](https://kalcetos.shop)
 
+![Kalcetos — storefront](docs/screenshot-home.png)
+
 ---
 
 ## Qué es
