@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kalcetos 🧦
 
-## Getting Started
+Tienda eCommerce de calcetines con carácter. Storefront completo construido con **Next.js 16**, **Supabase** y **Stripe**, desplegado en **Vercel**.
 
-First, run the development server:
+🔗 **Demo en producción:** [kalcetos.shop](https://kalcetos.shop)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## Qué es
+
+eCommerce funcional de principio a fin: catálogo de producto, ficha con variantes, carrito persistente, checkout con pago real vía Stripe, emails transaccionales y páginas legales conformes a normativa española (RGPD/LSSI). Diseño propio con paleta veraniega y vibe divertido.
+
+## Stack técnico
+
+| Capa | Tecnología |
+|---|---|
+| Framework | Next.js 16 (App Router, React 19, Server Components) |
+| Lenguaje | TypeScript |
+| Base de datos | Supabase (PostgreSQL + RLS, región EU) |
+| Pagos | Stripe (Checkout + Webhooks) |
+| Email | Resend (transaccional) |
+| Estilos | Tailwind CSS v4 + shadcn / Base UI |
+| Estado | Zustand (carrito) |
+| Formularios | React Hook Form + Zod |
+| Deploy | Vercel |
+
+## Funcionalidades
+
+- 🛍️ Catálogo de productos servido desde Supabase con imágenes en Supabase Storage
+- 📄 Ficha de producto dinámica (`/productos/[slug]`)
+- 🛒 Carrito persistente con Zustand
+- 💳 Checkout con Stripe + manejo de webhooks (`/api/stripe`) y páginas success/cancel
+- 📧 Emails transaccionales con Resend
+- 🔒 Seguridad: `service_role` solo en servidor, RLS en tablas sensibles (customers, orders)
+- ⚖️ Páginas legales: aviso legal, privacidad, devoluciones y cookies (España)
+
+## Estructura
+
+```
+app/
+├── productos/[slug]/   # Catálogo y ficha de producto
+├── carrito/            # Carrito
+├── checkout/           # Checkout + success / cancel
+├── api/stripe/         # Webhooks de Stripe
+└── legal/              # Aviso legal, privacidad, devoluciones, cookies
+components/             # UI (shadcn / Base UI)
+lib/                    # Clientes Supabase + Stripe
+supabase/migrations/    # Esquema PostgreSQL (schema kalcetos)
+scripts/                # Import de productos + subida de imágenes
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Desarrollo local
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# 1. Instalar dependencias
+npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# 2. Configurar variables de entorno
+cp .env.example .env.local   # rellena con tus claves (Supabase, Stripe, Resend)
 
-## Learn More
+# 3. Arrancar
+npm run dev                  # http://localhost:3000
+```
 
-To learn more about Next.js, take a look at the following resources:
+> Las variables sensibles (`SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`) viven solo en `.env.local`, nunca en el repo. Usa claves Stripe **test** en desarrollo.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts útiles
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run build    # build de producción
+npm run lint     # ESLint
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Hecho por [Digital Project](https://digitalproject.pro) · Primera tienda del sistema **Ecommerce OS**.
